@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import axios from 'axios';
 import {
   MapPin,
   Phone,
@@ -9,6 +11,17 @@ import {
 } from 'lucide-react';
 
 export default function DonationCard({ data }: { data: any }) {
+  const [pickedUp, setPickedUp] = useState(data.pickedUp);
+
+  const handlePickup = async () => {
+    try {
+      await axios.patch(`http://localhost:5000/api/food/${data._id}/pickup`);
+      setPickedUp(true);
+    } catch (err) {
+      alert('Failed to mark as picked up');
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-md border border-green-100 p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
       {/* Top Section: Restaurant + Status */}
@@ -17,7 +30,7 @@ export default function DonationCard({ data }: { data: any }) {
           <h2 className="text-xl font-bold text-green-700">{data.restaurantName}</h2>
           <p className="text-gray-600 text-sm">{data.foodType}</p>
         </div>
-        {data.pickedUp ? (
+        {pickedUp ? (
           <span className="flex items-center gap-1 bg-green-100 text-green-700 text-xs font-medium px-3 py-1 rounded-full">
             <CheckCircle className="w-4 h-4" /> Picked Up
           </span>
@@ -47,13 +60,12 @@ export default function DonationCard({ data }: { data: any }) {
           <span><strong>Posted:</strong> {data.postedAt}</span>
         </div>
       </div>
-
       {/* CTA Button (Optional) */}
-      {!data.pickedUp && (
+      {!pickedUp && (
         <div className="mt-6">
           <button
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition"
-            onClick={() => alert('Pickup Requested')}
+            onClick={handlePickup}
           >
             Request Pickup
           </button>
